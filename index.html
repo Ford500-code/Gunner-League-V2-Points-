@@ -293,7 +293,7 @@ function compute(){
       return{...p,...s,score:s.pts,eliminated:el};
     });
     const activeCount=pd.filter(p=>!p.eliminated).length;
-    return{name:o.name,totalPts:tP,totalAst:tA,totalReb:tR,totalScore:tP+tA+tR,players:pd,active:activeCount};
+    return{name:o.name,totalPts:tP,totalAst:tA,totalReb:tR,totalScore:tP,players:pd,active:activeCount};
   }).sort((a,b)=>b.totalScore-a.totalScore);
 
   const all=[];
