@@ -88,7 +88,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .live-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--red),var(--accent))}
 
 /* Top players */
-.tp-grid{grid-template-columns:40px 1fr 90px 90px 60px 60px 60px 70px}
+.tp-grid{grid-template-columns:40px 1fr 90px 90px 70px}
 .sort-head{cursor:pointer;transition:color .2s}
 .sort-head:hover{color:var(--accentBright)}
 .sort-active{color:var(--accent)}
@@ -114,7 +114,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .mb2{margin-bottom:2px}.mb4{margin-bottom:4px}.mb6{margin-bottom:6px}.mb32{margin-bottom:32px}.mb36{margin-bottom:36px}
 
 @media(max-width:700px){
-  .tp-grid{grid-template-columns:30px 1fr 60px 50px 50px 50px 60px !important;font-size:11px}
+  .tp-grid{grid-template-columns:30px 1fr 60px 60px !important;font-size:11px}
   .tp-grid .hide-mobile{display:none}
   .cards{grid-template-columns:repeat(auto-fit,minmax(155px,1fr))}
   .title{font-size:20px}
@@ -148,7 +148,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   <div class="mb36" id="leaderboardSection"></div>
   <div class="mb36" id="topPlayersSection"></div>
   <div style="margin-bottom:40px" id="draftValueSection"></div>
-  <div class="footer"><div class="footer-line"></div>ESPN API &nbsp;·&nbsp; Auto-refresh 2min &nbsp;·&nbsp; 2026 NCAA Tournament<br><span style="font-size:10px">Gunner League V2 &nbsp;·&nbsp; 1 pt per Point, Assist & Rebound</span></div>
+  <div class="footer"><div class="footer-line"></div>ESPN API &nbsp;·&nbsp; Auto-refresh 2min &nbsp;·&nbsp; 2026 NCAA Tournament<br><span style="font-size:10px">Gunner League V2 &nbsp;·&nbsp; Points Only</span></div>
 </div>
 
 <script>
@@ -364,32 +364,28 @@ function render(){
 
   const bars=D.owners.map((o,i)=>{
     const y=i*(bH+gap);
-    const pW=maxS>0?(o.totalPts/maxS)*cW:0,aW=maxS>0?(o.totalAst/maxS)*cW:0,rW=maxS>0?(o.totalReb/maxS)*cW:0;
-    const totW2=pW+aW+rW;const isB=o.name==="Bradford";
+    const pW=maxS>0?(o.totalPts/maxS)*cW:0;
+    const isB=o.name==="Bradford";
     return`<g>
       <text x="10" y="${y+bH/2+1}" dominant-baseline="middle" fill="${i<3?['var(--gold)','var(--silver)','var(--bronze)'][i]:'var(--textMuted)'}" font-size="${i<3?13:11}" font-weight="800" font-family="'Outfit',sans-serif">${i+1}</text>
       <text x="26" y="${y+bH/2+1}" dominant-baseline="middle" fill="${isB?'var(--accent)':'var(--text)'}" font-size="12" font-weight="${isB?700:500}" font-family="'Outfit',sans-serif">${o.name}${isB?' ★':''}</text>
       <g transform="translate(${lW},0)">
         <rect x="0" y="${y+3}" width="${cW}" height="${bH-6}" rx="4" fill="var(--border)" opacity=".15"/>
         <rect x="0" y="${y+3}" width="${Math.max(pW,0)}" height="${bH-6}" rx="4" fill="#f97316" opacity=".9"/>
-        <rect x="${pW}" y="${y+3}" width="${Math.max(aW,0)}" height="${bH-6}" fill="#10b981" opacity=".85"/>
-        <rect x="${pW+aW}" y="${y+3}" width="${Math.max(rW,0)}" height="${bH-6}" fill="#06b6d4" opacity=".8"/>
-        ${isB?`<rect x="0" y="${y+2}" width="${totW2}" height="${bH-4}" rx="5" fill="none" stroke="var(--accent)" stroke-width="1.5" opacity=".5" filter="url(#barGlow)"/>`:''}
+        ${isB?`<rect x="0" y="${y+2}" width="${pW}" height="${bH-4}" rx="5" fill="none" stroke="var(--accent)" stroke-width="1.5" opacity=".5" filter="url(#barGlow)"/>`:''}
         ${pW>28?`<text x="${pW/2}" y="${y+bH/2+1}" text-anchor="middle" dominant-baseline="middle" fill="rgba(255,255,255,.85)" font-size="9" font-weight="700" font-family="'JetBrains Mono',monospace">${o.totalPts}</text>`:''}
-        ${aW>28?`<text x="${pW+aW/2}" y="${y+bH/2+1}" text-anchor="middle" dominant-baseline="middle" fill="rgba(255,255,255,.85)" font-size="9" font-weight="700" font-family="'JetBrains Mono',monospace">${o.totalAst}</text>`:''}
-        ${rW>28?`<text x="${pW+aW+rW/2}" y="${y+bH/2+1}" text-anchor="middle" dominant-baseline="middle" fill="rgba(255,255,255,.85)" font-size="9" font-weight="700" font-family="'JetBrains Mono',monospace">${o.totalReb}</text>`:''}
       </g>
       <text x="${lW+cW+10}" y="${y+bH/2+1}" dominant-baseline="middle" fill="${i===0?'var(--gold)':'var(--text)'}" font-size="14" font-weight="800" font-family="'Outfit',sans-serif">${o.totalScore}</text>
     </g>`;
   }).join("");
 
-  const legend=[{l:"PTS",c:"#f97316"},{l:"AST",c:"#10b981"},{l:"REB",c:"#06b6d4"}].map((s,i)=>
+  const legend=[{l:"PTS",c:"#f97316"}].map((s,i)=>
     `<g transform="translate(${lW+i*64},${totalH-34})"><rect x="0" y="0" width="10" height="10" rx="2" fill="${s.c}" opacity=".9"/><text x="14" y="9" fill="var(--textSec)" font-size="9" font-weight="600" font-family="'JetBrains Mono',monospace">${s.l}</text></g>`
   ).join("");
 
   document.getElementById("chartSection").innerHTML=`
     <div class="sh"><div class="sh-row"><div class="sh-bar"></div><h2>Fantasy Team Standings</h2></div>
-    <p>Stacked: PTS (orange) + AST (green) + REB (cyan) · Sorted by total score</p></div>
+    <p>Points Only · Sorted by total points scored</p></div>
     <div class="panel"><div class="panel-glow"></div><div class="panel-body" style="overflow-x:auto">
       <svg width="100%" viewBox="0 0 ${totalW} ${totalH}" style="max-width:${totalW}px;display:block">
         <defs><linearGradient id="gridFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--border)" stop-opacity=".3"/><stop offset="100%" stop-color="var(--border)" stop-opacity=".05"/></linearGradient>
@@ -428,22 +424,20 @@ function render(){
     let roster='';
     if(expandedOwner===o.name){
       roster=`<div class="roster">
-        <div class="roster-hdr"><span>Rd</span><span>Player</span><span>School</span><span class="r color-pts">PTS</span><span class="r color-ast">AST</span><span class="r color-reb">REB</span><span class="r">Score</span></div>
+        <div class="roster-hdr"><span>Rd</span><span>Player</span><span>School</span><span class="r color-pts">PTS</span></div>
         ${o.players.map((p,pi)=>`<div class="roster-row${p.eliminated?' elim':''}" style="animation-delay:${pi*0.03}s">
           <span class="color-muted">${p.r}</span>
           <span class="fw5" style="color:${p.eliminated?'var(--elimText)':'var(--text)'};${p.eliminated?'text-decoration:line-through':''}"> ${p.n}${p.eliminated?' <span class="color-red" style="font-size:9px;font-weight:700;text-decoration:none;display:inline-block">ELIM</span>':''}</span>
           <span class="color-sec fs11">${p.s}</span>
-          <span class="r fw5 color-pts">${p.pts}</span><span class="r fw5 color-ast">${p.ast}</span><span class="r fw5 color-reb">${p.reb}</span>
-          <span class="r fw7" style="color:${p.score>0?'var(--gold)':'var(--textMuted)'}">${p.score}</span>
+          <span class="r fw7" style="color:${p.pts>0?'var(--gold)':'var(--textMuted)'}">${p.pts}</span>
         </div>`).join("")}
       </div>`;
     }
     return`<div>
-      <div class="${cls}" style="grid-template-columns:48px 1fr 60px 80px 80px 80px 100px" onclick="toggleOwner('${o.name}')">
+      <div class="${cls}" style="grid-template-columns:48px 1fr 60px 100px" onclick="toggleOwner('${o.name}')">
         <span class="fs16 fw7">${medalE(i)}</span>
         <span class="outfit fw6 fs14" style="color:${o.name==='Bradford'?'var(--accent)':'var(--text)'}">${o.name}${o.name==='Bradford'?'<span class="color-gold fs11"> ★</span>':''}</span>
         <span class="c fw7 fs13" style="color:${o.active>=7?'var(--green)':o.active>=4?'var(--gold)':'var(--red)'}">${o.active}<span style="font-weight:400;color:var(--textMuted);font-size:10px">/10</span></span>
-        <span class="r fs13 color-pts">${o.totalPts}</span><span class="r fs13 color-ast">${o.totalAst}</span><span class="r fs13 color-reb">${o.totalReb}</span>
         <span class="r outfit fw7 fs18" style="color:${i===0?'var(--gold)':'var(--text)'}">${o.totalScore}</span>
       </div>${roster}
     </div>`;
@@ -452,7 +446,7 @@ function render(){
   document.getElementById("leaderboardSection").innerHTML=`
     <div class="sh"><div class="sh-row"><div class="sh-bar"></div><h2>Owner Leaderboard</h2></div><p>Click any row to expand roster</p></div>
     <div class="panel">
-      <div class="thdr" style="grid-template-columns:48px 1fr 60px 80px 80px 80px 100px"><span>#</span><span>Owner</span><span class="c" style="color:var(--green)">ALIVE</span><span class="r color-pts">PTS</span><span class="r color-ast">AST</span><span class="r color-reb">REB</span><span class="r">Score</span></div>
+      <div class="thdr" style="grid-template-columns:48px 1fr 60px 100px"><span>#</span><span>Owner</span><span class="c" style="color:var(--green)">ALIVE</span><span class="r">PTS</span></div>
       ${lbRows}
     </div>`;
 
@@ -466,17 +460,13 @@ function render(){
     <div class="panel">
       <div class="thdr tp-grid"><span>#</span><span>Player</span><span class="hide-mobile">School</span><span>Owner</span>
         <span class="${sortCls('pts')}" onclick="setSort('pts')">PTS${sortIcon('pts')}</span>
-        <span class="${sortCls('ast')}" onclick="setSort('ast')">AST${sortIcon('ast')}</span>
-        <span class="${sortCls('reb')}" onclick="setSort('reb')">REB${sortIcon('reb')}</span>
-        <span class="${sortCls('score')}" onclick="setSort('score')">SCORE${sortIcon('score')}</span>
       </div>
       ${sorted.map((p,i)=>`<div class="trow tp-grid${i%2?' trow-alt':''}" style="cursor:default;opacity:${p.eliminated?.3:1};animation:fadeIn .3s ease ${i*0.02}s both">
         <span class="fw7" style="color:${i<3?'var(--gold)':'var(--textMuted)'}">${i+1}</span>
         <span class="fw6" style="${p.eliminated?'text-decoration:line-through':''}">${p.name}</span>
         <span class="color-sec fs11 hide-mobile">${p.school}</span>
         <span class="fs11" style="color:${p.owner==='Bradford'?'var(--accent)':'var(--textSec)'};font-weight:${p.owner==='Bradford'?600:400}">${p.owner}</span>
-        <span class="r color-pts">${p.pts}</span><span class="r color-ast">${p.ast}</span><span class="r color-reb">${p.reb}</span>
-        <span class="r fw7 color-gold">${p.score}</span>
+        <span class="r fw7 color-gold">${p.pts}</span>
       </div>`).join("")}
     </div>`;
 
