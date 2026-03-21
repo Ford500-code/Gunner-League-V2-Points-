@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>2026 Gunner League V2 — Points Only</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏀</text></svg>"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#04080f;--card:#0a1121;--cardAlt:#080e1c;--surface:#111b2e;
+  --border:#152040;--borderGlow:#1e3a5f;
+  --accent:#f97316;--accentBright:#fb923c;--accentDim:rgba(249,115,22,0.10);
+  --green:#10b981;--greenBright:#34d399;--greenDim:rgba(16,185,129,0.10);
+  --cyan:#06b6d4;--cyanDim:rgba(6,182,212,0.08);
+  --gold:#fbbf24;--goldDim:rgba(251,191,36,0.10);
+  --red:#ef4444;--redGlow:rgba(239,68,68,0.25);
+  --text:#e2e8f0;--textSec:#7e92b5;--textMuted:#3f5273;--elimText:#2e3f5a;
+  --silver:#94a3b8;--bronze:#cd7f32;
+}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono','SF Mono',monospace;min-height:100vh;position:relative}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at 15% 0%,rgba(249,115,22,0.04) 0%,transparent 55%),
+    radial-gradient(ellipse at 85% 100%,rgba(16,185,129,0.03) 0%,transparent 55%),
+    repeating-linear-gradient(0deg,transparent,transparent 80px,rgba(21,32,64,0.12) 80px,rgba(21,32,64,0.12) 81px),
+    repeating-linear-gradient(90deg,transparent,transparent 80px,rgba(21,32,64,0.08) 80px,rgba(21,32,64,0.08) 81px)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+.wrap{max-width:1200px;margin:0 auto;padding:24px 24px 80px;position:relative;z-index:1}
+.header{background:linear-gradient(135deg,var(--card) 0%,#0d1628 50%,var(--card) 100%);border-bottom:1px solid var(--borderGlow);padding:26px 24px 20px;position:relative;z-index:1}
+.header::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--green),var(--cyan),var(--accent))}
+.header-inner{max-width:1200px;margin:0 auto}
+.logo-row{display:flex;align-items:center;gap:14;margin-bottom:4}
+.logo-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--accentDim),var(--greenDim));border:1px solid var(--border);font-size:24px}
+.title{font-family:'Outfit',sans-serif;font-size:24px;font-weight:900;letter-spacing:-0.02em;background:linear-gradient(135deg,var(--accent),var(--accentBright),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{font-family:'Outfit',sans-serif;color:var(--textSec);font-size:12px;font-weight:400;letter-spacing:0.06em;text-transform:uppercase}
+.meta{margin-top:8px;display:flex;align-items:center;gap:14;font-size:11px;color:var(--textMuted);flex-wrap:wrap}
+.dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.dot-green{background:var(--green)}
+.dot-red{background:var(--red);animation:pulse 1.5s infinite}
+.btn{background:transparent;border:1px solid var(--border);color:var(--textSec);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-family:inherit;transition:border-color .2s}
+.btn:hover{border-color:var(--borderGlow)}
+.btn:disabled{opacity:.5;cursor:default}
+
+/* Section headers */
+.sh{margin-bottom:14px}
+.sh-row{display:flex;align-items:center;gap:10;margin-bottom:2px}
+.sh-bar{width:3px;height:22px;border-radius:2px;background:linear-gradient(180deg,var(--accent),var(--green))}
+.sh h2{font-family:'Outfit',sans-serif;font-size:19px;font-weight:700}
+.sh p{color:var(--textSec);font-size:12px;margin:2px 0 0 13px}
+
+/* Cards grid */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:12px;margin-bottom:32px}
+.card{border-radius:12px;padding:16px 18px;position:relative;overflow:hidden;border:1px solid var(--border);animation:fadeIn .5s ease both}
+.card-corner{position:absolute;top:-1px;right:-1px;width:36px;height:36px;border-radius:0 12px 0 0}
+.card-label{font-size:9px;font-weight:700;color:var(--textMuted);letter-spacing:0.12em}
+.card-value{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;line-height:1.1;margin-top:6px}
+.card-sub{font-size:11px;color:var(--textSec);margin-top:4px}
+
+/* Panel */
+.panel{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;position:relative}
+.panel-glow{position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),var(--green),var(--cyan),transparent);opacity:.35}
+.panel-body{padding:20px 20px 14px}
+
+/* Table header */
+.thdr{display:grid;padding:10px 16px;background:linear-gradient(90deg,rgba(249,115,22,0.05),rgba(16,185,129,0.03));border-bottom:1px solid var(--borderGlow);font-size:10px;font-weight:600;color:var(--textMuted);letter-spacing:0.1em;text-transform:uppercase}
+.trow{display:grid;padding:12px 16px;border-bottom:1px solid var(--border);align-items:center;cursor:pointer;transition:background .2s}
+.trow:hover{background:rgba(255,255,255,0.02)}
+.trow-alt{background:var(--cardAlt)}
+.trow-expanded{background:var(--accentDim)}
+.medal-1{border-left:3px solid var(--gold)}
+.medal-2{border-left:3px solid var(--silver)}
+.medal-3{border-left:3px solid var(--bronze)}
+
+/* Expanded roster */
+.roster{background:#060a14;border-bottom:1px solid var(--border);animation:fadeIn .3s ease}
+.roster-hdr{display:grid;grid-template-columns:36px 1fr 100px 50px 50px 50px 60px;padding:8px 24px;font-size:10px;font-weight:600;color:var(--textMuted);letter-spacing:0.06em;text-transform:uppercase;border-bottom:1px solid var(--border)}
+.roster-row{display:grid;grid-template-columns:36px 1fr 100px 50px 50px 50px 60px;padding:7px 24px;font-size:12px;border-bottom:1px solid rgba(21,32,64,0.4);animation:fadeIn .3s ease both}
+.roster-row.elim{opacity:.3;background:rgba(55,65,81,0.08)}
+
+/* Live games */
+.live-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 18px;font-size:13px;min-width:200px;position:relative;overflow:hidden}
+.live-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--red),var(--accent))}
+
+/* Top players */
+.tp-grid{grid-template-columns:40px 1fr 90px 90px 60px 60px 60px 70px}
+.sort-head{cursor:pointer;transition:color .2s}
+.sort-head:hover{color:var(--accentBright)}
+.sort-active{color:var(--accent)}
+
+/* Draft value */
+.dv-grid{grid-template-columns:60px 80px 80px 1fr 80px}
+
+/* Footer */
+.footer{text-align:center;padding:24px 0 0;border-top:1px solid var(--border);font-size:11px;color:var(--textMuted)}
+.footer-line{width:60px;height:1px;background:linear-gradient(90deg,var(--accent),var(--green));margin:0 auto 12px;opacity:.4}
+
+/* Helpers */
+.r{text-align:right}.c{text-align:center}
+.color-pts{color:#f97316}.color-ast{color:#10b981}.color-reb{color:#06b6d4}
+.color-gold{color:#fbbf24}.color-accent{color:#f97316}.color-red{color:#ef4444}
+.color-sec{color:var(--textSec)}.color-muted{color:var(--textMuted)}.color-elim{color:var(--elimText)}
+.fw5{font-weight:500}.fw6{font-weight:600}.fw7{font-weight:700}.fw8{font-weight:800}
+.fs11{font-size:11px}.fs12{font-size:12px}.fs13{font-size:13px}.fs14{font-size:14px}.fs16{font-size:16px}.fs18{font-size:18px}
+.outfit{font-family:'Outfit',sans-serif}
+.nowrap{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.flex-center{display:flex;align-items:center}
+.gap4{gap:4px}.gap5{gap:5px}.gap8{gap:8px}.gap10{gap:10px}.gap12{gap:12px}.gap14{gap:14px}.gap20{gap:20px}
+.mb2{margin-bottom:2px}.mb4{margin-bottom:4px}.mb6{margin-bottom:6px}.mb32{margin-bottom:32px}.mb36{margin-bottom:36px}
+
+@media(max-width:700px){
+  .tp-grid{grid-template-columns:30px 1fr 60px 50px 50px 50px 60px !important;font-size:11px}
+  .tp-grid .hide-mobile{display:none}
+  .cards{grid-template-columns:repeat(auto-fit,minmax(155px,1fr))}
+  .title{font-size:20px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="logo-row">
+      <div class="logo-icon">🏀</div>
+      <div>
+        <div class="title">2026 GUNNER LEAGUE V2</div>
+        <div class="subtitle">Points Only &nbsp;·&nbsp; 11 Teams &nbsp;·&nbsp; 110 Players</div>
+      </div>
+    </div>
+    <div class="meta">
+      <span class="flex-center gap5"><span class="dot dot-green" id="syncDot" style="opacity:.3"></span><span id="syncText">Connecting...</span></span>
+      <span class="flex-center gap4" id="liveIndicator" style="display:none;color:var(--red)"><span class="dot dot-red"></span><span id="liveCount">0</span> LIVE</span>
+      <button class="btn" id="refreshBtn" onclick="fetchAllData()">↻ REFRESH</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="cards" id="summaryCards"></div>
+  <div id="liveGamesSection"></div>
+  <div class="mb36" id="chartSection"></div>
+  <div class="mb36" id="activePlayersSection"></div>
+  <div class="mb36" id="leaderboardSection"></div>
+  <div class="mb36" id="topPlayersSection"></div>
+  <div style="margin-bottom:40px" id="draftValueSection"></div>
+  <div class="footer"><div class="footer-line"></div>ESPN API &nbsp;·&nbsp; Auto-refresh 2min &nbsp;·&nbsp; 2026 NCAA Tournament<br><span style="font-size:10px">Gunner League V2 &nbsp;·&nbsp; 1 pt per Point, Assist & Rebound</span></div>
+</div>
+
+<script>
+// ─── DATA ──────────────────────────────────────────────────────────────────────
+const OWNERS=[
+{name:"Hillz",players:[{n:"Cameron Boozer",s:"Duke",r:1,a:["Cam Boozer"]},{n:"Tre White",s:"Kansas",r:2},{n:"Motiejus Krivas",s:"Arizona",r:3,a:["Krivas"]},{n:"Trey McKenney",s:"Michigan",r:4,a:["Trey McKinney"]},{n:"Urban Klavzar",s:"Florida",r:5},{n:"Tobe Awaka",s:"Arizona",r:6},{n:"Nimari Burnett",s:"Michigan",r:7},{n:"C.J. Cox",s:"Purdue",r:8,a:["CJ Cox"]},{n:"Acaden Lewis",s:"Villanova",r:9},{n:"Robbie Avila",s:"Saint Louis",r:10,a:["Cream Avila"]}]},
+{name:"Turner",players:[{n:"Darius Acuff Jr.",s:"Arkansas",r:1,a:["Acuff","Darius Acuff"]},{n:"Braden Smith",s:"Purdue",r:2,a:["Smith"]},{n:"Boogie Fland",s:"Florida",r:3},{n:"Braylon Mullins",s:"UConn",r:4,a:["Mullens"]},{n:"Kylan Boswell",s:"Illinois",r:5,a:["Boswell"]},{n:"Christian Anderson",s:"Texas Tech",r:6,a:["Anderson"]},{n:"Latrell Wrightsell",s:"Alabama",r:7,a:["Wrightsell","Latrell Wrightsell Jr."]},{n:"Tyler Nickel",s:"Vanderbilt",r:8,a:["Nickel"]},{n:"Dominique Daniels Jr.",s:"Cal Baptist",r:9,a:["Daniels","Dominique Daniels"]},{n:"Jaron Pierre Jr.",s:"SMU",r:10,a:["Pierre","Jaron Pierre"]}]},
+{name:"Bradford",players:[{n:"Brayden Burries",s:"Arizona",r:1,a:["Burries"]},{n:"Cayden Boozer",s:"Duke",r:2},{n:"Aday Mara",s:"Michigan",r:3,a:["Mara"]},{n:"Reuben Chinyelu",s:"Florida",r:4,a:["Chinyelu","Rueben Chinyelu"]},{n:"Tyler Tanner",s:"Vanderbilt",r:5,a:["Tanner"]},{n:"Malik Thomas",s:"Virginia",r:6,a:["Thomas"]},{n:"Otega Oweh",s:"Kentucky",r:7,a:["Oweh"]},{n:"Chance Mallory",s:"Virginia",r:8,a:["Mallory"]},{n:"Boopie Miller",s:"SMU",r:9,a:["Miller"]},{n:"Terrence Hill Jr.",s:"VCU",r:10,a:["Hill Jr","Terrence Hill"]}]},
+{name:"Berto",players:[{n:"Isaiah Evans",s:"Duke",r:1,a:["Isiah Evans"]},{n:"Ja'Kobi Gillespie",s:"Tennessee",r:2,a:["Gillispie","Gillespie"]},{n:"Nate Ament",s:"Tennessee",r:3},{n:"Trey Kaufman-Renn",s:"Purdue",r:4,a:["Kaufman Renn","Kaufman-Renn"]},{n:"Pryce Sandfort",s:"Nebraska",r:5,a:["Sandfort"]},{n:"Trevon Brazile",s:"Arkansas",r:6,a:["Brazile"]},{n:"Bryce Hopkins",s:"St. John's",r:7},{n:"Dailyn Swain",s:"Texas",r:8,a:["Swain"]},{n:"Tavari Johnson",s:"Akron",r:9},{n:"Jordan Pope",s:"Texas",r:10}]},
+{name:"Sam",players:[{n:"Jaden Bradley",s:"Arizona",r:1,a:["Bradley"]},{n:"Darryn Peterson",s:"Kansas",r:2,a:["Peterson"]},{n:"Anthony Dell'Orso",s:"Arizona",r:3,a:["Dell Orso"]},{n:"Solo Ball",s:"UConn",r:4},{n:"J'den Cenac",s:"Houston",r:5,a:["Cenac"]},{n:"Andrew Mast",s:"Nebraska",r:6,a:["Mast"]},{n:"Melvin Council Jr.",s:"Kansas",r:7,a:["Council","Melvin Council"]},{n:"Robert Wright III",s:"BYU",r:8,a:["Rob Wright","Robert Wright"]},{n:"Mason Falslev",s:"Utah State",r:9,a:["Falslev"]},{n:"Jayden Stone",s:"Missouri",r:10,a:["Stone"]}]},
+{name:"Gosh",players:[{n:"Thomas Haugh",s:"Florida",r:1,a:["Haugh"]},{n:"Koa Peat",s:"Arizona",r:2,a:["Peat"]},{n:"Xaivian Lee",s:"Florida",r:3},{n:"Milos Uzan",s:"Houston",r:4,a:["Uzan"]},{n:"Nikola Mirkovic",s:"Illinois",r:5,a:["Mirkovic"]},{n:"Tomislav Ivisic",s:"Illinois",r:6,a:["T. Ivisic"]},{n:"Tyon Grant-Foster",s:"Gonzaga",r:7,a:["Grant-Foster"]},{n:"Oziyah Sellers",s:"St. John's",r:8,a:["Sellers"]},{n:"MJ Collins Jr.",s:"Utah State",r:9,a:["Collins Jr.","Collin's Jr."]},{n:"John Mobley Jr.",s:"Ohio State",r:10,a:["Mobley Jr.","John Mobley"]}]},
+{name:"Lee",players:[{n:"Milan Momcilovic",s:"Iowa State",r:1,a:["Mommacilovic"]},{n:"Labaron Philon",s:"Alabama",r:2,a:["Philon","Labaron Philon Jr."]},{n:"Fletcher Loyer",s:"Purdue",r:3,a:["Loyer"]},{n:"Thijs De Ridder",s:"Virginia",r:4,a:["De Ridder"]},{n:"Alex Karaban",s:"UConn",r:5,a:["Karaban"]},{n:"Tyler Miles",s:"Vanderbilt",r:6,a:["Miles"]},{n:"Ryan Conwell",s:"Louisville",r:7,a:["Conwell"]},{n:"Joseph Tugler",s:"Houston",r:8,a:["Tugler"]},{n:"Bennett Stirtz",s:"Iowa",r:9,a:["Stirtz"]},{n:"Devin Royal",s:"Ohio State",r:10,a:["Royal"]}]},
+{name:"Moyer",players:[{n:"Yaxel Lendeborg",s:"Michigan",r:1,a:["Lendeborg"]},{n:"Morez Johnson Jr.",s:"Michigan",r:2,a:["Johnson Jr.","Morez Johnson"]},{n:"Andrej Stojakovic",s:"Illinois",r:3,a:["Stojakovic"]},{n:"Elliot Cadeau",s:"Michigan",r:4,a:["Cadeau"]},{n:"Oscar Cluff",s:"Purdue",r:5,a:["Cluff"]},{n:"Carson Cooper",s:"Michigan State",r:6,a:["Cooper"]},{n:"Sam Lewis",s:"Virginia",r:7,a:["Lewis"]},{n:"Kur Teng",s:"Michigan State",r:8,a:["Teng"]},{n:"Larry Johnson",s:"McNeese",r:9},{n:"Terry Anderson",s:"High Point",r:10}]},
+{name:"Matt",players:[{n:"Keaton Wagler",s:"Illinois",r:1},{n:"Tamin Lipsey",s:"Iowa State",r:2},{n:"AJ Dybantsa",s:"BYU",r:3},{n:"Meleek Thomas",s:"Arkansas",r:4},{n:"Nick Boyd",s:"Wisconsin",r:5},{n:"Zuby Ejiofor",s:"St. John's",r:6,a:["Zuby Eliofor"]},{n:"Malik Reneau",s:"Miami",r:7},{n:"Billy Richmond III",s:"Arkansas",r:8,a:["Billy Richmond"]},{n:"Jeremiah Wilkinson",s:"Georgia",r:9,a:["Jeremiah Wikinson"]},{n:"Wes Enis",s:"South Florida",r:10}]},
+{name:"Graham",players:[{n:"Alex Condon",s:"Florida",r:1},{n:"Joshua Jefferson",s:"Iowa State",r:2,a:["Josh Jefferson"]},{n:"Graham Ike",s:"Gonzaga",r:3},{n:"Tarris Reed Jr.",s:"UConn",r:4,a:["Tarris Reed"]},{n:"John Blackwell",s:"Wisconsin",r:5},{n:"Patrick Ngongba II",s:"Duke",r:6,a:["Patrick Ngongba"]},{n:"Flory Bidunga",s:"Kansas",r:7},{n:"Amari Allen",s:"Alabama",r:8},{n:"Bruce Thornton",s:"Ohio State",r:9},{n:"Izaiyah Nelson",s:"South Florida",r:10}]},
+{name:"Kagan",players:[{n:"Kingston Fleming",s:"Houston",r:1,a:["Flemings"]},{n:"Emanuel Sharp",s:"Houston",r:2,a:["Sharpe"]},{n:"Ivan Kharchenkov",s:"Arizona",r:3,a:["Kharchenkov"]},{n:"Jeremy Fears Jr.",s:"Michigan State",r:4,a:["Fears","Jeremy Fears"]},{n:"Jaxon Kohler",s:"Michigan State",r:5},{n:"Coen Carr",s:"Michigan State",r:6},{n:"Donovan Atwell",s:"Texas Tech",r:7,a:["Atwell"]},{n:"Blake Buchanan",s:"Iowa State",r:8,a:["Buchanan"]},{n:"Mark Mitchell",s:"Missouri",r:9},{n:"Themus Fulks",s:"UCF",r:10,a:["T Fulks"]}]}
+];
+
+const SA={"Duke":["Duke","Duke Blue Devils"],"Kansas":["Kansas","Kansas Jayhawks"],"Arizona":["Arizona","Arizona Wildcats"],"Michigan":["Michigan","Michigan Wolverines"],"Florida":["Florida","Florida Gators"],"Purdue":["Purdue","Purdue Boilermakers"],"Arkansas":["Arkansas","Arkansas Razorbacks"],"Illinois":["Illinois","Illinois Fighting Illini"],"UConn":["UConn","UConn Huskies","Connecticut","Connecticut Huskies"],"Texas Tech":["Texas Tech","Texas Tech Red Raiders"],"Alabama":["Alabama","Alabama Crimson Tide"],"Vanderbilt":["Vanderbilt","Vanderbilt Commodores"],"Cal Baptist":["Cal Baptist","California Baptist","California Baptist Lancers"],"SMU":["SMU","SMU Mustangs"],"St. John's":["St. John's","St John's","St. John's Red Storm"],"Texas":["Texas","Texas Longhorns"],"Akron":["Akron","Akron Zips"],"Iowa State":["Iowa State","Iowa St","Iowa State Cyclones"],"Nebraska":["Nebraska","Nebraska Cornhuskers"],"Houston":["Houston","Houston Cougars"],"BYU":["BYU","Brigham Young","BYU Cougars"],"Utah State":["Utah State","Utah St","Utah State Aggies"],"Missouri":["Missouri","Missouri Tigers"],"Ohio State":["Ohio State","Ohio St","Ohio State Buckeyes"],"Virginia":["Virginia","UVA","Virginia Cavaliers"],"Gonzaga":["Gonzaga","Gonzaga Bulldogs"],"Kentucky":["Kentucky","Kentucky Wildcats"],"Michigan State":["Michigan State","Michigan St","MSU","Michigan State Spartans"],"Louisville":["Louisville","Louisville Cardinals"],"Tennessee":["Tennessee","Tennessee Volunteers"],"Iowa":["Iowa","Iowa Hawkeyes"],"Saint Louis":["Saint Louis","St. Louis","Saint Louis Billikens"],"Villanova":["Villanova","Villanova Wildcats"],"Wisconsin":["Wisconsin","Wisconsin Badgers"],"Miami":["Miami","Miami Hurricanes","Miami (FL)"],"Georgia":["Georgia","Georgia Bulldogs"],"South Florida":["South Florida","USF","South Florida Bulls"],"McNeese":["McNeese","McNeese State","McNeese Cowboys"],"High Point":["High Point","High Point Panthers"],"VCU":["VCU","Virginia Commonwealth","VCU Rams"],"UCF":["UCF","Central Florida","UCF Knights"]};
+
+const ESPN_SB="https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard";
+const ESPN_SM="https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/summary";
+const TDATES=["20260319","20260320","20260321","20260322","20260326","20260327","20260328","20260329","20260404","20260406"];
+const PLAYIN_DATES=["20260317","20260318"];
+
+// ESPN team IDs for all schools in the league
+const TEAM_IDS={"Duke":150,"Kansas":2305,"Arizona":12,"Michigan":130,"Florida":57,"Purdue":2509,"Arkansas":8,"Illinois":356,"UConn":41,"Texas Tech":2641,"Alabama":333,"Vanderbilt":238,"Cal Baptist":2856,"SMU":2567,"St. John's":2599,"Texas":251,"Akron":2006,"Iowa State":66,"Nebraska":158,"Houston":248,"BYU":252,"Utah State":328,"Missouri":142,"Ohio State":194,"Virginia":258,"Gonzaga":2250,"Kentucky":96,"Michigan State":127,"Louisville":97,"Tennessee":2633,"Iowa":2294,"Saint Louis":139,"Villanova":2918,"Wisconsin":275,"Miami":2390,"Georgia":61,"South Florida":58,"McNeese":2377,"High Point":2314,"VCU":2670,"UCF":2116,"North Carolina":153};
+
+function ns(s){if(!s)return"";const lo=s.toLowerCase().replace(/[^a-z\s]/g,"").trim();for(const[k,v]of Object.entries(SA))for(const a of v){const al=a.toLowerCase().replace(/[^a-z\s]/g,"").trim();if(al===lo)return k;}for(const[k,v]of Object.entries(SA))for(const a of v){const al=a.toLowerCase().replace(/[^a-z\s]/g,"").trim();if(al.length>3&&(lo.includes(al)||al.includes(lo)))return k;}return s;}
+function nn(n){return n?n.toLowerCase().replace(/[^a-z\s]/g,"").replace(/\s+/g," ").trim():"";}
+function pm(en2,dp){
+  const en=nn(en2),dn=nn(dp.n);
+  // Exact full name match
+  if(en===dn)return true;
+  // Full name contains (e.g. "Darius Acuff Jr" contains "Darius Acuff")
+  if(en.length>4&&dn.length>4&&(en.includes(dn)||dn.includes(en)))return true;
+  // First AND last name match (split both, compare first and last tokens)
+  const eP=en.split(" "),dP=dn.split(" ");
+  const eFirst=eP[0],eLast=eP[eP.length-1],dFirst=dP[0],dLast=dP[dP.length-1];
+  if(eLast===dLast&&eLast.length>2&&eFirst===dFirst&&eFirst.length>1)return true;
+  // Last name only match — ONLY if the draft name is a single word (last name only draft pick)
+  if(dP.length===1&&eLast===dLast&&eLast.length>3)return true;
+  // Check alt names with same strict logic
+  if(dp.a)for(const alt of dp.a){
+    const an=nn(alt);
+    if(en===an)return true;
+    if(en.length>4&&an.length>4&&(en.includes(an)||an.includes(en)))return true;
+    const aP=an.split(" "),aFirst=aP[0],aLast=aP[aP.length-1];
+    if(eLast===aLast&&eLast.length>2&&eFirst===aFirst&&eFirst.length>1)return true;
+    if(aP.length===1&&eLast===aLast&&aLast.length>3)return true;
+  }
+  return false;
+}
+
+let playerStats={},liveGames=[],eliminatedSchools=new Set(),expandedOwner=null,sortCol="score",sortDir="desc";
+
+// ─── FETCH ─────────────────────────────────────────────────────────────────────
+async function fetchAllData(){
+  const btn=document.getElementById("refreshBtn");
+  btn.disabled=true;btn.textContent="Loading...";
+  const stats={},live=[],elim=new Set();
+
+  const SB="https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard";
+  const tournamentEventIds=new Set();
+  const seenEvents=new Set();
+
+  // Step 1: Scan each tournament date (hardcoded to avoid timezone issues)
+  const dates=["20260317","20260318","20260319","20260320","20260321","20260322","20260323","20260324","20260325","20260326","20260327","20260328","20260329","20260330","20260331","20260401","20260402","20260403","20260404","20260405","20260406","20260407"];
+
+  for(let i=0;i<dates.length;i++){
+    const dt=dates[i];
+    const isPlayIn=dt==='20260317'||dt==='20260318';
+    btn.textContent=`Scanning ${dt} (${i+1}/${dates.length})...`;
+    try{
+      const r=await fetch(`${SB}?dates=${dt}&seasontype=3`);
+      if(!r.ok)continue;
+      const d=await r.json();
+      for(const ev of d?.events||[]){
+        const co=ev.competitions?.[0];if(!co)continue;
+        const st=co.status?.type?.name;
+        if(st==="STATUS_FINAL"){
+          for(const c of co.competitors||[])if(c.winner===false){
+            const n2=ns(c.team?.displayName||c.team?.name||"");if(n2)elim.add(n2);
+          }
+        }
+        if(st==="STATUS_IN_PROGRESS"&&!seenEvents.has(ev.id+'_live')){
+          seenEvents.add(ev.id+'_live');
+          live.push({teams:co.competitors?.map(c=>({name:c.team?.displayName||c.team?.name,score:c.score?.displayValue||c.score})),clock:co.status?.displayClock,period:co.status?.period,name:ev.shortName||ev.name});
+        }
+        if(!isPlayIn && (st==="STATUS_FINAL"||st==="STATUS_IN_PROGRESS")){
+          tournamentEventIds.add(ev.id);
+        }
+      }
+    }catch(e){}
+  }
+
+  // Step 2: Fetch box scores
+  const eventList=[...tournamentEventIds];
+  let boxCount=0;
+  for(const eid of eventList){
+    boxCount++;
+    btn.textContent=`Box scores ${boxCount}/${eventList.length}...`;
+    try{
+      const sr=await fetch(`${ESPN_SM}?event=${eid}`);
+      if(!sr.ok)continue;
+      const sd=await sr.json();
+      if(!sd?.boxscore?.players)continue;
+      for(const tb of sd.boxscore.players){
+        const tn=ns(tb?.team?.displayName||tb?.team?.name||"");
+        for(const sg of tb?.statistics||[]){
+          const lb=sg?.labels||[];const pi2=lb.indexOf("PTS"),ai=lb.indexOf("AST"),ri=lb.indexOf("REB");
+          for(const ath of sg?.athletes||[]){
+            const en=ath?.athlete?.displayName||"";const as2=ath?.stats||[];
+            const pts=pi2>=0?parseInt(as2[pi2])||0:0,ast=ai>=0?parseInt(as2[ai])||0:0,reb=ri>=0?parseInt(as2[ri])||0:0;
+            for(const ow of OWNERS)for(const pl of ow.players){
+              if(ns(pl.s)!==tn)continue;if(!pm(en,pl))continue;
+              const k=`${ow.name}|${pl.n}`;
+              if(!stats[k])stats[k]={pts:0,ast:0,reb:0,gm:0,gids:new Set()};
+              if(!stats[k].gids.has(eid)){stats[k].gids.add(eid);stats[k].pts+=pts;stats[k].ast+=ast;stats[k].reb+=reb;stats[k].gm++;}
+            }
+          }
+        }
+      }
+    }catch(e){}
+  }
+
+  playerStats=stats;liveGames=live;eliminatedSchools=elim;
+  document.getElementById("syncDot").style.opacity="1";
+  document.getElementById("syncText").textContent=`Synced ${new Date().toLocaleTimeString()} · ${eventList.length} games found`;
+  btn.disabled=false;btn.textContent="↻ REFRESH";
+  render();
+}
+
+// ─── COMPUTE ───────────────────────────────────────────────────────────────────
+function compute(){
+  const owners=OWNERS.map(o=>{
+    let tP=0,tA=0,tR=0;
+    const pd=o.players.map(p=>{
+      const s=playerStats[`${o.name}|${p.n}`]||{pts:0,ast:0,reb:0,gm:0};
+      const el=eliminatedSchools.has(ns(p.s));
+      tP+=s.pts;tA+=s.ast;tR+=s.reb;
+      return{...p,...s,score:s.pts,eliminated:el};
+    });
+    const activeCount=pd.filter(p=>!p.eliminated).length;
+    return{name:o.name,totalPts:tP,totalAst:tA,totalReb:tR,totalScore:tP+tA+tR,players:pd,active:activeCount};
+  }).sort((a,b)=>b.totalScore-a.totalScore);
+
+  const all=[];
+  for(const o of OWNERS)for(const p of o.players){
+    const s=playerStats[`${o.name}|${p.n}`]||{pts:0,ast:0,reb:0,gm:0};
+    all.push({name:p.n,school:p.s,owner:o.name,round:p.r,...s,score:s.pts,eliminated:eliminatedSchools.has(ns(p.s))});
+  }
+  const top=[...all].sort((a,b)=>b.score-a.score).slice(0,20);
+
+  const rds={};for(let r=1;r<=10;r++)rds[r]={total:0,count:0,best:null,bestScore:0};
+  for(const p of all){rds[p.round].total+=p.score;rds[p.round].count++;if(p.score>rds[p.round].bestScore){rds[p.round].bestScore=p.score;rds[p.round].best=`${p.name} (${p.owner})`;}}
+  const dv=Object.entries(rds).map(([r,d])=>({round:+r,avg:d.count>0?(d.total/d.count).toFixed(1):"0.0",total:d.total,best:d.best||"—",bestScore:d.bestScore}));
+
+  const ts=owners.reduce((s,o)=>s+o.totalScore,0);
+  const scored=all.filter(p=>p.score>0).length;
+  const elimC=all.filter(p=>p.eliminated).length;
+
+  return{owners,all,top,dv,ts,scored,elimC,leader:owners[0],topPlayer:top[0]};
+}
+
+// ─── RENDER ────────────────────────────────────────────────────────────────────
+const medalE=i=>i===0?"🥇":i===1?"🥈":i===2?"🥉":`${i+1}`;
+const medalCls=i=>i===0?"medal-1":i===1?"medal-2":i===2?"medal-3":"";
+
+function render(){
+  const D=compute();
+
+  // Live indicator
+  const li=document.getElementById("liveIndicator");
+  if(liveGames.length>0){li.style.display="flex";document.getElementById("liveCount").textContent=liveGames.length;}else li.style.display="none";
+
+  // Summary cards
+  const cards=[
+    {label:"TOTAL SCORE",value:D.ts.toLocaleString(),sub:"across 110 players",icon:"📊",grad:"var(--accentDim)"},
+    {label:"LEADING OWNER",value:D.leader?.name||"—",sub:D.leader?`${D.leader.totalScore} total`:"",icon:"👑",grad:"var(--goldDim)",hl:true},
+    {label:"TOP SCORER",value:D.topPlayer?.name||"—",sub:D.topPlayer?`${D.topPlayer.score} pts · ${D.topPlayer.owner}`:"",icon:"🔥",grad:"var(--accentDim)"},
+    {label:"PLAYERS ACTIVE",value:`${D.scored}/${D.all.length}`,sub:`${D.elimC} eliminated`,icon:"📋",grad:"var(--greenDim)"},
+    {label:"LIVE GAMES",value:liveGames.length,sub:liveGames.length>0?"in progress":"no live games",icon:liveGames.length>0?"🔴":"⏸️",grad:liveGames.length>0?"var(--redGlow)":"var(--cyanDim)"},
+  ];
+  document.getElementById("summaryCards").innerHTML=cards.map((c,i)=>`
+    <div class="card" style="background:linear-gradient(135deg,${c.grad},var(--card));animation-delay:${i*0.08}s;${c.hl?'border-color:rgba(251,191,36,0.25)':''}">
+      <div class="card-corner" style="background:linear-gradient(135deg,transparent 50%,${c.hl?'rgba(251,191,36,0.06)':'rgba(249,115,22,0.04)'} 50%)"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span class="card-label">${c.label}</span><span style="font-size:18px">${c.icon}</span>
+      </div>
+      <div class="card-value" style="color:${c.hl?'var(--gold)':'var(--text)'}">${c.value}</div>
+      <div class="card-sub">${c.sub}</div>
+    </div>
+  `).join("");
+
+  // Live games
+  document.getElementById("liveGamesSection").innerHTML=liveGames.length>0?`
+    <div class="mb32"><div class="sh"><div class="sh-row"><div class="sh-bar"></div><h2>Live Games</h2></div></div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">${liveGames.map(g=>`
+      <div class="live-card"><div style="font-family:'Outfit',sans-serif;font-weight:600;margin-bottom:6px;font-size:12px">${g.name}</div>
+      ${g.teams?.map(t=>`<div style="display:flex;justify-content:space-between;gap:20px;font-size:13px;margin-bottom:2px"><span class="color-sec">${t.name}</span><span class="fw7 outfit">${t.score}</span></div>`).join("")}
+      <div class="color-red" style="font-size:10px;margin-top:4px;font-weight:600">H${g.period} · ${g.clock}</div></div>
+    `).join("")}</div></div>`:"";
+
+  // ─── CHART ───────────────────────────────────────────────────────────────────
+  const maxS=Math.max(...D.owners.map(o=>o.totalScore),1);
+  const bH=30,gap=6,lW=84,cW=480,sW=56,totalW=lW+cW+sW+16,totalH=D.owners.length*(bH+gap)+44;
+  const gridLines=[0.25,0.5,0.75,1].map(pct=>{
+    const x=lW+pct*cW;
+    return`<line x1="${x}" y1="0" x2="${x}" y2="${totalH-34}" stroke="url(#gridFade)" stroke-width="1" stroke-dasharray="2,5"/>
+      <text x="${x}" y="${totalH-18}" text-anchor="middle" fill="var(--textMuted)" font-size="8" font-family="'JetBrains Mono',monospace" opacity=".7">${Math.round(maxS*pct)}</text>`;
+  }).join("");
+
+  const bars=D.owners.map((o,i)=>{
+    const y=i*(bH+gap);
+    const pW=maxS>0?(o.totalPts/maxS)*cW:0,aW=maxS>0?(o.totalAst/maxS)*cW:0,rW=maxS>0?(o.totalReb/maxS)*cW:0;
+    const totW2=pW+aW+rW;const isB=o.name==="Bradford";
+    return`<g>
+      <text x="10" y="${y+bH/2+1}" dominant-baseline="middle" fill="${i<3?['var(--gold)','var(--silver)','var(--bronze)'][i]:'var(--textMuted)'}" font-size="${i<3?13:11}" font-weight="800" font-family="'Outfit',sans-serif">${i+1}</text>
+      <text x="26" y="${y+bH/2+1}" dominant-baseline="middle" fill="${isB?'var(--accent)':'var(--text)'}" font-size="12" font-weight="${isB?700:500}" font-family="'Outfit',sans-serif">${o.name}${isB?' ★':''}</text>
+      <g transform="translate(${lW},0)">
+        <rect x="0" y="${y+3}" width="${cW}" height="${bH-6}" rx="4" fill="var(--border)" opacity=".15"/>
+        <rect x="0" y="${y+3}" width="${Math.max(pW,0)}" height="${bH-6}" rx="4" fill="#f97316" opacity=".9"/>
+        <rect x="${pW}" y="${y+3}" width="${Math.max(aW,0)}" height="${bH-6}" fill="#10b981" opacity=".85"/>
+        <rect x="${pW+aW}" y="${y+3}" width="${Math.max(rW,0)}" height="${bH-6}" fill="#06b6d4" opacity=".8"/>
+        ${isB?`<rect x="0" y="${y+2}" width="${totW2}" height="${bH-4}" rx="5" fill="none" stroke="var(--accent)" stroke-width="1.5" opacity=".5" filter="url(#barGlow)"/>`:''}
+        ${pW>28?`<text x="${pW/2}" y="${y+bH/2+1}" text-anchor="middle" dominant-baseline="middle" fill="rgba(255,255,255,.85)" font-size="9" font-weight="700" font-family="'JetBrains Mono',monospace">${o.totalPts}</text>`:''}
+        ${aW>28?`<text x="${pW+aW/2}" y="${y+bH/2+1}" text-anchor="middle" dominant-baseline="middle" fill="rgba(255,255,255,.85)" font-size="9" font-weight="700" font-family="'JetBrains Mono',monospace">${o.totalAst}</text>`:''}
+        ${rW>28?`<text x="${pW+aW+rW/2}" y="${y+bH/2+1}" text-anchor="middle" dominant-baseline="middle" fill="rgba(255,255,255,.85)" font-size="9" font-weight="700" font-family="'JetBrains Mono',monospace">${o.totalReb}</text>`:''}
+      </g>
+      <text x="${lW+cW+10}" y="${y+bH/2+1}" dominant-baseline="middle" fill="${i===0?'var(--gold)':'var(--text)'}" font-size="14" font-weight="800" font-family="'Outfit',sans-serif">${o.totalScore}</text>
+    </g>`;
+  }).join("");
+
+  const legend=[{l:"PTS",c:"#f97316"},{l:"AST",c:"#10b981"},{l:"REB",c:"#06b6d4"}].map((s,i)=>
+    `<g transform="translate(${lW+i*64},${totalH-34})"><rect x="0" y="0" width="10" height="10" rx="2" fill="${s.c}" opacity=".9"/><text x="14" y="9" fill="var(--textSec)" font-size="9" font-weight="600" font-family="'JetBrains Mono',monospace">${s.l}</text></g>`
+  ).join("");
+
+  document.getElementById("chartSection").innerHTML=`
+    <div class="sh"><div class="sh-row"><div class="sh-bar"></div><h2>Fantasy Team Standings</h2></div>
+    <p>Stacked: PTS (orange) + AST (green) + REB (cyan) · Sorted by total score</p></div>
+    <div class="panel"><div class="panel-glow"></div><div class="panel-body" style="overflow-x:auto">
+      <svg width="100%" viewBox="0 0 ${totalW} ${totalH}" style="max-width:${totalW}px;display:block">
+        <defs><linearGradient id="gridFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--border)" stop-opacity=".3"/><stop offset="100%" stop-color="var(--border)" stop-opacity=".05"/></linearGradient>
+        <filter id="barGlow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+        ${gridLines}${bars}${legend}
+      </svg>
+    </div></div>`;
+
+  // ─── ACTIVE PLAYERS REMAINING ──────────────────────────────────────────────
+  const activeSort=[...D.owners].sort((a,b)=>b.active-a.active);
+  document.getElementById("activePlayersSection").innerHTML=`
+    <div class="sh"><div class="sh-row"><div class="sh-bar"></div><h2>Active Players Remaining</h2></div>
+    <p>Players whose teams are still alive in the tournament</p></div>
+    <div class="panel"><div class="panel-body" style="padding:16px 20px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px">
+        ${activeSort.map(o=>{
+          const pct=o.active/10*100;
+          const clr=o.active>=7?'var(--green)':o.active>=4?'var(--gold)':'var(--red)';
+          const isB=o.name==='Bradford';
+          return`<div style="background:var(--cardAlt);border:1px solid ${isB?'var(--accent)':'var(--border)'};border-radius:10px;padding:12px 14px;position:relative;overflow:hidden">
+            <div style="position:absolute;bottom:0;left:0;width:${pct}%;height:3px;background:${clr};border-radius:0 3px 0 0;opacity:.6"></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <span class="outfit fw6 fs12" style="color:${isB?'var(--accent)':'var(--text)'}">${o.name}</span>
+              <span class="outfit fw8 fs18" style="color:${clr}">${o.active}</span>
+            </div>
+            <div style="display:flex;gap:3px">${o.players.map(p=>`<div style="width:8px;height:8px;border-radius:2px;background:${p.eliminated?'var(--border)':clr};opacity:${p.eliminated?.3:.9}"></div>`).join("")}</div>
+            <div style="font-size:10px;color:var(--textMuted);margin-top:5px">${o.active} alive · ${10-o.active} eliminated</div>
+          </div>`;
+        }).join("")}
+      </div>
+    </div></div>`;
+
+  // ─── LEADERBOARD ─────────────────────────────────────────────────────────────
+  const lbRows=D.owners.map((o,i)=>{
+    const cls=[`trow`,i%2?'trow-alt':'',medalCls(i),expandedOwner===o.name?'trow-expanded':''].filter(Boolean).join(' ');
+    let roster='';
+    if(expandedOwner===o.name){
+      roster=`<div class="roster">
+        <div class="roster-hdr"><span>Rd</span><span>Player</span><span>School</span><span class="r color-pts">PTS</span><span class="r color-ast">AST</span><span class="r color-reb">REB</span><span class="r">Score</span></div>
+        ${o.players.map((p,pi)=>`<div class="roster-row${p.eliminated?' elim':''}" style="animation-delay:${pi*0.03}s">
+          <span class="color-muted">${p.r}</span>
+          <span class="fw5" style="color:${p.eliminated?'var(--elimText)':'var(--text)'};${p.eliminated?'text-decoration:line-through':''}"> ${p.n}${p.eliminated?' <span class="color-red" style="font-size:9px;font-weight:700;text-decoration:none;display:inline-block">ELIM</span>':''}</span>
+          <span class="color-sec fs11">${p.s}</span>
+          <span class="r fw5 color-pts">${p.pts}</span><span class="r fw5 color-ast">${p.ast}</span><span class="r fw5 color-reb">${p.reb}</span>
+          <span class="r fw7" style="color:${p.score>0?'var(--gold)':'var(--textMuted)'}">${p.score}</span>
+        </div>`).join("")}
+      </div>`;
+    }
+    return`<div>
+      <div class="${cls}" style="grid-template-columns:48px 1fr 60px 80px 80px 80px 100px" onclick="toggleOwner('${o.name}')">
+        <span class="fs16 fw7">${medalE(i)}</span>
+        <span class="outfit fw6 fs14" style="color:${o.name==='Bradford'?'var(--accent)':'var(--text)'}">${o.name}${o.name==='Bradford'?'<span class="color-gold fs11"> ★</span>':''}</span>
+        <span class="c fw7 fs13" style="color:${o.active>=7?'var(--green)':o.active>=4?'var(--gold)':'var(--red)'}">${o.active}<span style="font-weight:400;color:var(--textMuted);font-size:10px">/10</span></span>
+        <span class="r fs13 color-pts">${o.totalPts}</span><span class="r fs13 color-ast">${o.totalAst}</span><span class="r fs13 color-reb">${o.totalReb}</span>
+        <span class="r outfit fw7 fs18" style="color:${i===0?'var(--gold)':'var(--text)'}">${o.totalScore}</span>
+      </div>${roster}
+    </div>`;
+  }).join("");
+
+  document.getElementById("leaderboardSection").innerHTML=`
+    <div class="sh"><div class="sh-row"><div class="sh-bar"></div><h2>Owner Leaderboard</h2></div><p>Click any row to expand roster</p></div>
+    <div class="panel">
+      <div class="thdr" style="grid-template-columns:48px 1fr 60px 80px 80px 80px 100px"><span>#</span><span>Owner</span><span class="c" style="color:var(--green)">ALIVE</span><span class="r color-pts">PTS</span><span class="r color-ast">AST</span><span class="r color-reb">REB</span><span class="r">Score</span></div>
+      ${lbRows}
+    </div>`;
+
+  // ─── TOP PLAYERS ─────────────────────────────────────────────────────────────
+  const sorted=[...D.top].sort((a,b)=>sortDir==="desc"?(b[sortCol]||0)-(a[sortCol]||0):(a[sortCol]||0)-(b[sortCol]||0));
+  const sortIcon=col=>sortCol===col?(sortDir==="desc"?" ↓":" ↑"):"";
+  const sortCls=col=>sortCol===col?"sort-head sort-active r":"sort-head r";
+
+  document.getElementById("topPlayersSection").innerHTML=`
+    <div class="sh"><div class="sh-row"><div class="sh-bar"></div><h2>Top Players</h2></div><p>League-wide rankings · Click headers to sort</p></div>
+    <div class="panel">
+      <div class="thdr tp-grid"><span>#</span><span>Player</span><span class="hide-mobile">School</span><span>Owner</span>
+        <span class="${sortCls('pts')}" onclick="setSort('pts')">PTS${sortIcon('pts')}</span>
+        <span class="${sortCls('ast')}" onclick="setSort('ast')">AST${sortIcon('ast')}</span>
+        <span class="${sortCls('reb')}" onclick="setSort('reb')">REB${sortIcon('reb')}</span>
+        <span class="${sortCls('score')}" onclick="setSort('score')">SCORE${sortIcon('score')}</span>
+      </div>
+      ${sorted.map((p,i)=>`<div class="trow tp-grid${i%2?' trow-alt':''}" style="cursor:default;opacity:${p.eliminated?.3:1};animation:fadeIn .3s ease ${i*0.02}s both">
+        <span class="fw7" style="color:${i<3?'var(--gold)':'var(--textMuted)'}">${i+1}</span>
+        <span class="fw6" style="${p.eliminated?'text-decoration:line-through':''}">${p.name}</span>
+        <span class="color-sec fs11 hide-mobile">${p.school}</span>
+        <span class="fs11" style="color:${p.owner==='Bradford'?'var(--accent)':'var(--textSec)'};font-weight:${p.owner==='Bradford'?600:400}">${p.owner}</span>
+        <span class="r color-pts">${p.pts}</span><span class="r color-ast">${p.ast}</span><span class="r color-reb">${p.reb}</span>
+        <span class="r fw7 color-gold">${p.score}</span>
+      </div>`).join("")}
+    </div>`;
+
+  // ─── DRAFT VALUE ─────────────────────────────────────────────────────────────
+  const maxAvg=Math.max(...D.dv.map(x=>parseFloat(x.avg)),1);
+  document.getElementById("draftValueSection").innerHTML=`
+    <div class="sh"><div class="sh-row"><div class="sh-bar"></div><h2>Draft Round Value</h2></div><p>Average score per round · Rounds 9–10: 8-seed+ only</p></div>
+    <div class="panel">
+      <div class="thdr dv-grid"><span>Round</span><span class="r">Avg</span><span class="r">Total</span><span style="padding-left:20px">Best Pick</span><span class="r">Best</span></div>
+      ${D.dv.map((d,i)=>{
+        const bW=(parseFloat(d.avg)/maxAvg)*100;
+        return`<div class="trow dv-grid${i%2?' trow-alt':''}" style="cursor:default;animation:fadeIn .3s ease ${i*0.04}s both">
+          <span class="fw7" style="color:${d.round<=3?'var(--accent)':'var(--textSec)'}">Rd ${d.round}${d.round>=9?'<span class="color-gold" style="font-size:9px"> ★</span>':''}</span>
+          <span class="r fw6">${d.avg}</span><span class="r color-sec">${d.total}</span>
+          <span style="padding-left:20px;display:flex;align-items:center;gap:8px" class="color-sec">
+            <span style="display:inline-block;height:5px;border-radius:3px;flex-shrink:0;background:linear-gradient(90deg,var(--accent),var(--green));width:${bW}%;max-width:120px;opacity:.6"></span>
+            <span class="nowrap">${d.best}</span>
+          </span>
+          <span class="r fw6 color-green" style="color:var(--green)">${d.bestScore}</span>
+        </div>`;
+      }).join("")}
+    </div>`;
+}
+
+function toggleOwner(name){expandedOwner=expandedOwner===name?null:name;render();}
+function setSort(col){if(sortCol===col)sortDir=sortDir==="desc"?"asc":"desc";else{sortCol=col;sortDir="desc";}render();}
+
+// ─── INIT ──────────────────────────────────────────────────────────────────────
+fetchAllData();
+setInterval(fetchAllData,120000);
+</script>
+</body>
+</html>
